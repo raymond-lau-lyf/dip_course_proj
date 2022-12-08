@@ -1,0 +1,18 @@
+
+export TURTLEBOT3_MODEL=burger && source /usr/workspace/dip_course_ws/devel/setup.bash
+
+
+1
+roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
+
+2
+rosrun course_project course_project_node_2
+
+(3)
+roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+4
+killall -9 gzserver gzclient
+
+
+rqt
