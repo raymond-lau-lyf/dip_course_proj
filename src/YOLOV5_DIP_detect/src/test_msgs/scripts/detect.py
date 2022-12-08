@@ -281,11 +281,11 @@ def detect(save_img=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--weights', nargs='+', type=str, default='yolov5l.pt', help='model.pt path(s)')
-    parser.add_argument('--weights', nargs='+', type=str, default='src/test_msgs/scripts/trained_model/small/第一个/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='/usr/workspace/dip_course_ws/src/YOLOV5_DIP_detect/src/test_msgs/scripts/trained_model/small/第一个/best.pt', help='model.pt path(s)')
     # parser.add_argument('--source', type=str, default='../my_dataset/images/train/', help='source')  # file/folder, 0 for webcam
 
-    # parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
-    parser.add_argument('--source', type=str, default='src/test_msgs/scripts/data/video/1.mp4', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='src/test_msgs/scripts/data/video/1.mp4', help='source')  # file/folder, 0 for webcam
 
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')

@@ -15,4 +15,12 @@ roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
 killall -9 gzserver gzclient
 
 
+
+yolo
+
+conda activate yolov5
+
+python src/YOLOV5_DIP_detect/src/test_msgs/scripts/detect.py
+
+
 rqt
