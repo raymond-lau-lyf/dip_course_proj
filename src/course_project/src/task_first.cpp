@@ -340,7 +340,7 @@ int main(int argc, char **argv)
     signal(SIGINT, MySigintHandler);
 
     // Planner p(n);
-    video_device.open(1);
+    video_device.open(0);
 
     cv::Mat stereo_image;
     cv::Mat mono_image;

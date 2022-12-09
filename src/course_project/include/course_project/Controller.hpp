@@ -24,55 +24,50 @@ enum robot_mode
     STOP_ACTION
 };
 
-enum rotate_direction
+struct target
 {
-    NULL_ROTATION,
-    LEFT_ROTATION,
-    RIGHT_ROTATION
-};
-
-struct target{
     float x;
     float y;
     float area;
 };
 
-struct target red_cone={-1,-1,-1},blue_cone={-1,-1,-1},nurse_target={-1,-1,-1};
+struct target red_cone = {-1, -1, -1}, blue_cone = {-1, -1, -1}, nurse_target = {-1, -1, -1};
 
 void detect_red_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
-    std::cout<<msg->data[0]<<" "<<msg->data[1]<<" "<<msg->data[2]<<std::endl;
+    std::cout << "red" << msg->data[0] << " " << msg->data[1] << " " << msg->data[2] << std::endl;
+    red_cone.x = msg->data[0];
+    red_cone.y = msg->data[1];
+    red_cone.area = msg->data[2];
 }
 
 void detect_blue_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
+    std::cout << "blue" << msg->data[0] << " " << msg->data[1] << " " << msg->data[2] << std::endl;
+    blue_cone.x = msg->data[0];
+    blue_cone.y = msg->data[1];
+    blue_cone.area = msg->data[2];
 }
 void detect_nurse_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
+    std::cout << "nurse" << msg->data[0] << " " << msg->data[1] << " " << msg->data[2] << std::endl;
+    nurse_target.x = msg->data[0];
+    nurse_target.y = msg->data[1];
+    nurse_target.area = msg->data[2];
 }
 
 class Controller
 {
 private:
-
-
     geometry_msgs::Twist cmd;
 
-    float redcone_delta;
-    float bluecone_delta;
-    int area_red = 0, area_blue = 0;
-    std::tuple<bool, float, float, float, float> result_red;
-    std::tuple<bool, float, float> result_blue;
-    bool status_red, status_blue;
-    float x1, y1, x2, y2, x, y;
-    std::pair<int, int> red_p1, red_p2, blue_p;
-    pid_config config;
+    pid_config cone_pid_config, nurse_pid_config;
     pid cone_pid;
+    pid nurse_pid;
 
     enum robot_mode robot_mode = RED_MODE;
     int modeflag = -1;
     int flag_follow = 0;
-
 
 public:
     ros::Publisher vel_pub;
@@ -80,8 +75,8 @@ public:
     ros::Subscriber blue_detect_sub;
     ros::Subscriber red_detect_sub;
     ros::Subscriber nurse_detect_sub;
-    Controller(ros::NodeHandle &nh_)
 
+    Controller(ros::NodeHandle &nh_)
     {
         vel_pub = nh_.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 
@@ -90,19 +85,31 @@ public:
         blue_detect_sub = nh_.subscribe("/robodetect_pub_blue", 10, detect_blue_Callback);
         nurse_detect_sub = nh_.subscribe("/robodetect_pub_nurse", 10, detect_nurse_Callback);
 
-        config.KP = 0.01;
-        config.KI = 0.000001;
-        config.KD = 0.000005;
-        config.error_max = 10;
-        config.outputMax = 1;
-        config.PID_Mode = PID_POSITION;
+        cone_pid_config.KP = 0.01;
+        cone_pid_config.KI = 0.000001;
+        cone_pid_config.KD = 0.000005;
+        cone_pid_config.error_max = 10;
+        cone_pid_config.outputMax = 1;
+        cone_pid_config.PID_Mode = PID_POSITION;
 
-        PID_Init(&cone_pid, &config);
+        PID_Init(&cone_pid, &cone_pid_config);
+
+        nurse_pid_config.KP = 0.01;
+        nurse_pid_config.KI = 0.000001;
+        nurse_pid_config.KD = 0.000005;
+        nurse_pid_config.error_max = 10;
+        nurse_pid_config.outputMax = 1;
+        nurse_pid_config.PID_Mode = PID_POSITION;
+
+        PID_Init(&nurse_pid, &nurse_pid_config);
+
+        while (true)
+        {
+            robot_control();
+        }
     }
 
-
-
-    void robot_rontrol()
+    void robot_control()
     {
         // cmd speed publish
         cmd.linear.x = 0;
@@ -132,31 +139,11 @@ public:
         //     flag_follow = 1;
         // }
 
-        if (modeflag == -1)
-            robot_mode = RED_MODE;
-        if (area_blue > 750 && modeflag <= 1)
-        {
-            robot_mode = BLUE_MODE;
-            modeflag = 1;
-        }
-        if (area_blue > 7000 || modeflag == 2)
-        {
-            modeflag = 2;
-            robot_mode = CIRCLE_MODE;
-            timer++;
-            ROS_INFO("timer %d", timer);
-        }
-        if (timer > 180)
-        {
-            robot_mode = STOP_ACTION;
-            flag_follow = 1;
-        }
-
         if (robot_mode == RED_MODE)
         { // mode=red
             ROS_INFO("RED_MODE");
-            cone_pid.fdb = redcone_delta;
-            cone_pid.ref = 0.0;
+            cone_pid.fdb = red_cone.x;
+            cone_pid.ref = 320;
             PID_Calc(&cone_pid);
 
             // 调PID用 调完可注释
@@ -174,8 +161,8 @@ public:
             ROS_INFO("BLUE_MODE");
             cmd.linear.x = 0.2;
 
-            cone_pid.fdb = bluecone_delta;
-            cone_pid.ref = 0.0;
+            cone_pid.fdb = blue_cone.x;
+            cone_pid.ref = 320;
             PID_Calc(&cone_pid);
             cmd.angular.z = cone_pid.output;
         }
