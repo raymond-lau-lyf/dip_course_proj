@@ -14,6 +14,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <tuple>
+#include "std_msgs/Float64MultiArray.h"
 
 static const std::string OPENCV_WINDOW = "Image window";
 
@@ -121,12 +122,28 @@ std::tuple<bool, float, float> get_blue_centers(cv::Mat img)
         ret = std::make_tuple(false, (int)y, (int)x);
     return ret;
 }
+
+void detect_red_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
+{
+}
+
+void detect_blue_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
+{
+}
+void detect_nurse_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
+{
+}
+
 class Image_Handler
 {
 private:
     image_transport::ImageTransport it_;
     image_transport::Subscriber image_sub_;
     image_transport::Publisher image_pub_;
+
+    ros::Subscriber blue_detect_sub;
+    ros::Subscriber red_detect_sub;
+    ros::Subscriber nurse_detect_sub;
 
     geometry_msgs::Twist cmd;
 
@@ -140,8 +157,7 @@ private:
     pid cone_pid;
 
     enum robot_mode robot_mode = RED_MODE;
-    int modeflag = 0;
-
+    int modeflag = -1;
     int flag_follow = 0;
 
 public:
@@ -159,6 +175,11 @@ public:
         image_sub_ = it_.subscribe("/d435/color/image_raw", 10,
                                    &Image_Handler::imageCb, this);
         image_pub_ = it_.advertise("/second_task_node/output_video", 1);
+
+        red_detect_sub = nh_.subscribe("/robodetect_pub_red", 10, detect_red_Callback);
+
+        blue_detect_sub = nh_.subscribe("/robodetect_pub_blue", 10, detect_blue_Callback);
+        nurse_detect_sub = nh_.subscribe("/robodetect_pub_nurse", 10, detect_nurse_Callback);
 
         config.KP = 0.01;
         config.KI = 0.000001;
@@ -308,7 +329,27 @@ public:
         cmd.angular.y = 0;
         cmd.angular.z = 0;
         static int timer = 0;
-        if (modeflag == 0)
+        // if (modeflag == -1)
+        //     robot_mode = RED_MODE;
+        // if (area_blue > 750 && modeflag <= 1)
+        // {
+        //     robot_mode = BLUE_MODE;
+        //     modeflag = 1;
+        // }
+        // if (area_blue > 7000 || modeflag == 2)
+        // {
+        //     modeflag = 2;
+        //     robot_mode = CIRCLE_MODE;
+        //     timer++;
+        //     ROS_INFO("timer %d", timer);
+        // }
+        // if (timer > 180)
+        // {
+        //     robot_mode = STOP_ACTION;
+        //     flag_follow = 1;
+        // }
+
+        if (modeflag == -1)
             robot_mode = RED_MODE;
         if (area_blue > 750 && modeflag <= 1)
         {
