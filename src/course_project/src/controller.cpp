@@ -11,6 +11,8 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "controller_node");
     ros::NodeHandle nco;
     Controller ic(nco);
-    ros::spin();
+
+    
+    // ros::spin();
     return 0;
 }

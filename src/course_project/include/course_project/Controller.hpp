@@ -107,10 +107,11 @@ public:
         nurse_pid_config.PID_Mode = PID_POSITION;
 
         PID_Init(&nurse_pid, &nurse_pid_config);
-
-        while (true)
+        ros::Rate loop_rate(10);
+        while (ros::ok())
         {
             robot_control();
+            loop_rate.sleep();
         }
     }
 
@@ -202,7 +203,7 @@ public:
         switch (*robot_mode)
         {
         case READY_MODE:
-            ROS_DEBUG("mode = READY_MODE");
+            ROS_INFO("mode = READY_MODE");
             if (red_cone.area != -1)
             {
                 red_confidence++;
@@ -217,7 +218,7 @@ public:
             }
             break;
         case RED_MODE:
-            ROS_DEBUG("mode = RED_MODE");
+            ROS_INFO("mode = RED_MODE");
             if (blue_cone.area > 200)
             {
                 blue_confidence++;
@@ -232,7 +233,7 @@ public:
             }
             break;
         case BLUE_MODE:
-            ROS_DEBUG("mode = BLUE_MODE");
+            ROS_INFO("mode = BLUE_MODE");
             if (blue_cone.area > 400)
             {
                 cirle_confidence++;
@@ -247,7 +248,7 @@ public:
             }
             break;
         case CIRCLE_MODE:
-            ROS_DEBUG("mode = CIRCLE_MODE");
+            ROS_INFO("mode = CIRCLE_MODE");
             circle_timer++;
             if (circle_timer > 500)
             {
@@ -255,11 +256,11 @@ public:
             }
             break;
         case FOLLOW_MODE:
-            ROS_DEBUG("mode = FOLLOW_MODE");
+            ROS_INFO("mode = FOLLOW_MODE");
 
             break;
         case STOP_ACTION:
-            ROS_DEBUG("mode = STOP_ACTION");
+            ROS_INFO("mode = STOP_ACTION");
 
             break;
         default:

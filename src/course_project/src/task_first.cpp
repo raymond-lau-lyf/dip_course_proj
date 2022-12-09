@@ -48,13 +48,7 @@ using namespace cv;
 // Planner::Planner(ros::NodeHandle &nh)
 // {
 //     ROS_INFO("Planner has started");
-//     video_device.open(1);
-//     vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 5);
-//     // pose_sub = nh.subscribe("/odom", 10, poseCallback);
-
-//     // init the statement of robot
-//     current_state = DETECT_ROAD;
-//     rotate_cmd = NULL_ROTATION;
+//     video_deVideoCapturecmd = NULL_ROTATION;
 
 //     Mat stereo_image;
 //     ////////////////////////////
