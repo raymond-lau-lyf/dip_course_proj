@@ -4,6 +4,9 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <signal.h>
+#include <sensor_msgs/image_encodings.h>
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
 
 using namespace std;
 using namespace cv;
@@ -48,17 +51,17 @@ using namespace cv;
 //     video_device.open(1);
 //     vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 5);
 //     // pose_sub = nh.subscribe("/odom", 10, poseCallback);
-    
+
 //     // init the statement of robot
 //     current_state = DETECT_ROAD;
 //     rotate_cmd = NULL_ROTATION;
 
-//     Mat road_image;
+//     Mat stereo_image;
 //     ////////////////////////////
 //     while (true)
 //     {
-//         video_device.read(road_image);
-//         MoveControl(road_image);
+//         video_device.read(stereo_image);
+//         MoveControl(stereo_image);
 //         waitKey(10);
 //     }
 // }
@@ -335,19 +338,27 @@ int main(int argc, char **argv)
     VideoCapture video_device;
 
     signal(SIGINT, MySigintHandler);
-    // video_device.read(road_image);
-    
+
     // Planner p(n);
     video_device.open(1);
 
-    cv::Mat road_image;
+    cv::Mat stereo_image;
+    cv::Mat mono_image;
+    video_device.read(stereo_image);
+
     ////////////////////////////
-    while (true)
+
+    image_transport::ImageTransport it(na);
+    image_transport::Publisher pub = it.advertise("/d435/color/image_raw", 10);
+    sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", mono_image).toImageMsg();
+    while (1)
     {
-        video_device.read(road_image);
-        cv::imshow("fuck",road_image);
-        // MoveControl(road_image);
-        waitKey(10);
+         msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", mono_image).toImageMsg();
+        pub.publish(msg);
+        video_device.read(stereo_image);
+        mono_image = stereo_image(Range(0, stereo_image.rows), Range(0, stereo_image.cols/2));
+        cv::imshow("fuck", mono_image);
+        waitKey(100);
     }
 
     return 0;

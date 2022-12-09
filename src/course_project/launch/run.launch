@@ -1,0 +1,5 @@
+<launch>
+  <node name="course_project_node_2" pkg="course_project" type="course_project_node_2" output="screen" />
+
+  <node name="course_project_node" pkg="course_project" type="course_project_node" output="screen" />
+</launch>
