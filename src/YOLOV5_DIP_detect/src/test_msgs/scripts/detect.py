@@ -1,5 +1,12 @@
 #!/usr/bin/env python
+import rospy
+from std_msgs.msg import Int32
+from std_msgs.msg import Float64
+from std_msgs.msg import Float64MultiArray
 
+import sys
+print(sys.path)
+sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
 import argparse
 import math
@@ -18,10 +25,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
-import rospy
-from std_msgs.msg import Int32
-from std_msgs.msg import Float64
-from std_msgs.msg import Float64MultiArray
+
 
 
 def detect(save_img=False):
@@ -281,7 +285,7 @@ def detect(save_img=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--weights', nargs='+', type=str, default='yolov5l.pt', help='model.pt path(s)')
-    parser.add_argument('--weights', nargs='+', type=str, default='/usr/workspace/dip_course_ws/src/YOLOV5_DIP_detect/src/test_msgs/scripts/trained_model/small/第一个/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='/home/zdh/Lth/dip_course_ws/src/YOLOV5_DIP_detect/src/test_msgs/scripts/trained_model/small/第一个/best.pt', help='model.pt path(s)')
     # parser.add_argument('--source', type=str, default='../my_dataset/images/train/', help='source')  # file/folder, 0 for webcam
 
     parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam

@@ -8,19 +8,19 @@
 using namespace std;
 using namespace cv;
 
-enum robot_state
-{
-    DETECT_ROAD,
-    DETECT_IMAGE,
-    STOP_ACTION
-};
+// enum robot_state
+// {
+//     DETECT_ROAD,
+//     DETECT_IMAGE,
+//     STOP_ACTION
+// };
 
-enum rotate_direction
-{
-    NULL_ROTATION,
-    LEFT_ROTATION,
-    RIGHT_ROTATION
-};
+// enum rotate_direction
+// {
+//     NULL_ROTATION,
+//     LEFT_ROTATION,
+//     RIGHT_ROTATION
+// };
 
 // class Planner
 // {
@@ -319,22 +319,36 @@ enum rotate_direction
 //     return;
 // }
 
-// // to make the ros node be able to quit by pressing ctrl + c
-// void MySigintHandler(int sig)
-// {
-//     ROS_INFO("shut down ros node");
-//     ros::shutdown();
-//     exit(0);
-// }
+// to make the ros node be able to quit by pressing ctrl + c
+void MySigintHandler(int sig)
+{
+    ROS_INFO("shut down ros node");
+    ros::shutdown();
+    exit(0);
+}
 
 int main(int argc, char **argv)
 {
     // the origin size of image from zed camera is 4416 pixels for width, 1242 pixels for height
-    // ros::init(argc, argv, "task_first_node1");
-    // ros::NodeHandle n;
-    // signal(SIGINT, MySigintHandler);
+    ros::init(argc, argv, "task_first_node1");
+    ros::NodeHandle na;
+    VideoCapture video_device;
 
+    signal(SIGINT, MySigintHandler);
+    // video_device.read(road_image);
+    
     // Planner p(n);
+    video_device.open(1);
+
+    cv::Mat road_image;
+    ////////////////////////////
+    while (true)
+    {
+        video_device.read(road_image);
+        cv::imshow("fuck",road_image);
+        // MoveControl(road_image);
+        waitKey(10);
+    }
 
     return 0;
 }
