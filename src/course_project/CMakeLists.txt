@@ -148,6 +148,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/task_first.cpp)
 add_executable(${PROJECT_NAME}_node_2 src/task_second.cpp)
+add_executable(controller src/controller.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -166,6 +167,11 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 
 target_link_libraries(${PROJECT_NAME}_node_2
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+)
+
+target_link_libraries(controller
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
 )
