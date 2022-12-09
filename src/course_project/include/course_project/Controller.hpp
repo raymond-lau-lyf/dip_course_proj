@@ -31,6 +31,14 @@ enum rotate_direction
     RIGHT_ROTATION
 };
 
+struct target{
+    float x;
+    float y;
+    float area;
+};
+
+struct target red_cone={-1,-1,-1},blue_cone={-1,-1,-1},nurse_target={-1,-1,-1};
+
 void detect_red_Callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
     std::cout<<msg->data[0]<<" "<<msg->data[1]<<" "<<msg->data[2]<<std::endl;
