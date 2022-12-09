@@ -14,13 +14,16 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <tuple>
+
 #include "std_msgs/Float64MultiArray.h"
 
-enum robot_mode
+enum Robot_Mode
 {
-    RED_MODE = 0,
+    READY_MODE = 0,
+    RED_MODE,
     BLUE_MODE,
     CIRCLE_MODE,
+    FOLLOW_MODE,
     STOP_ACTION
 };
 
@@ -65,7 +68,9 @@ private:
     pid cone_pid;
     pid nurse_pid;
 
-    enum robot_mode robot_mode = RED_MODE;
+    enum Robot_Mode robot_mode = READY_MODE;
+    int red_confidence = 0, blue_confidence = 0, cirle_confidence = 0; // 置信度
+
     int modeflag = -1;
     int flag_follow = 0;
 
@@ -119,25 +124,8 @@ public:
         cmd.angular.y = 0;
         cmd.angular.z = 0;
         static int timer = 0;
-        // if (modeflag == -1)
-        //     robot_mode = RED_MODE;
-        // if (area_blue > 750 && modeflag <= 1)
-        // {
-        //     robot_mode = BLUE_MODE;
-        //     modeflag = 1;
-        // }
-        // if (area_blue > 7000 || modeflag == 2)
-        // {
-        //     modeflag = 2;
-        //     robot_mode = CIRCLE_MODE;
-        //     timer++;
-        //     ROS_INFO("timer %d", timer);
-        // }
-        // if (timer > 180)
-        // {
-        //     robot_mode = STOP_ACTION;
-        //     flag_follow = 1;
-        // }
+
+        Robot_Mode_Switch(&robot_mode);
 
         if (robot_mode == RED_MODE)
         { // mode=red
@@ -206,6 +194,78 @@ public:
             Follow_Pic();
         }
         vel_pub.publish(cmd);
+    }
+
+    void Robot_Mode_Switch(enum Robot_Mode *robot_mode)
+    {
+        static int circle_timer = 0;
+        switch (*robot_mode)
+        {
+        case READY_MODE:
+            ROS_DEBUG("mode = READY_MODE");
+            if (red_cone.area != -1)
+            {
+                red_confidence++;
+            }
+            else
+            {
+                red_confidence--;
+            }
+            if (red_confidence > 20)
+            {
+                *robot_mode = RED_MODE;
+            }
+            break;
+        case RED_MODE:
+            ROS_DEBUG("mode = RED_MODE");
+            if (blue_cone.area > 200)
+            {
+                blue_confidence++;
+            }
+            else
+            {
+                blue_confidence--;
+            }
+            if (blue_confidence > 20)
+            {
+                *robot_mode = BLUE_MODE;
+            }
+            break;
+        case BLUE_MODE:
+            ROS_DEBUG("mode = BLUE_MODE");
+            if (blue_cone.area > 400)
+            {
+                cirle_confidence++;
+            }
+            else
+            {
+                cirle_confidence--;
+            }
+            if (cirle_confidence > 20)
+            {
+                *robot_mode = CIRCLE_MODE;
+            }
+            break;
+        case CIRCLE_MODE:
+            ROS_DEBUG("mode = CIRCLE_MODE");
+            circle_timer++;
+            if (circle_timer > 500)
+            {
+                *robot_mode = FOLLOW_MODE;
+            }
+            break;
+        case FOLLOW_MODE:
+            ROS_DEBUG("mode = FOLLOW_MODE");
+
+            break;
+        case STOP_ACTION:
+            ROS_DEBUG("mode = STOP_ACTION");
+
+            break;
+        default:
+
+            break;
+        }
     }
 
     void Follow_Pic()
