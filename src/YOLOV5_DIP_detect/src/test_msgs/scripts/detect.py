@@ -142,7 +142,7 @@ def detect(save_img=False):
 
                 for each_item in one_frame_result:
                     cv2.circle(im0, (int(each_item[2]), int(each_item[3])), 5, (0, 0, 0), -1)
-                    cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3]),
+                    cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3])+ " s:" + str(each_item[5]),
                                 (int(each_item[2]), int(each_item[3])),
                                 fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.7, color=(0, 255, 0),
                                 thickness=2)
@@ -175,26 +175,49 @@ def detect(save_img=False):
                     vid_writer.write(im0)
 
         num_red = 0
-        sumx = 0
-        sumy = 0
-        sums = 0
+        # sumx = 0
+        # sumy = 0
+        # sums = 0
+        redx=[]
+        redy=[]
+        reds=[]
         for each_item in one_frame_result:
             cv2.circle(im0, (int(each_item[2]), int(each_item[3])), 5, (0, 0, 0), -1)
-            cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3]),
+            cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3])+ " s:" + str(each_item[5]),
                         (int(each_item[2]), int(each_item[3])),
                         fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.7, color=(0, 255, 0),
                         thickness=2)
             if each_item[0] == 'red':
+                redx.append(each_item[2])
+                redy.append(each_item[3])
+                reds.append(each_item[5])
                 num_red = num_red + 1
-                sumx = each_item[2] + sumx
-                sumy = each_item[3] + sumy
-                sums = each_item[5] + sums
+                # sumx = each_item[2] + sumx
+                # sumy = each_item[3] + sumy
+                # sums = each_item[5] + sums
 
-        red_msg = [-1, -1, -1]
+        red_msg1 = [-1, -1, -1]
+        red_msg2 = [-1, -1, -1]
+        # if num_red == 2:
+        #     red_msg[0] = sumx / num_red
+        #     red_msg[1] = sumy / num_red
+        #     red_msg[2] = sums / num_red
+
         if num_red == 2:
-            red_msg[0] = sumx / num_red
-            red_msg[1] = sumy / num_red
-            red_msg[2] = sums / num_red
+            if  redx[0]<redx[1]:
+                red_msg1[0] = redx[0]
+                red_msg1[1] = redy[0]
+                red_msg1[2] = reds[0]
+                red_msg2[0] = redx[1]
+                red_msg2[1] = redy[1]
+                red_msg2[2] = reds[1]
+            else:
+                red_msg2[0] = redx[0]
+                red_msg2[1] = redy[0]
+                red_msg2[2] = reds[0]
+                red_msg1[0] = redx[1]
+                red_msg1[1] = redy[1]
+                red_msg1[2] = reds[1]      
 
         blue_msg = [-1, -1, -1]
         nurse_msg = [-1, -1, -1]
@@ -204,14 +227,17 @@ def detect(save_img=False):
             if each_item[0] == 'nurse':
                 nurse_msg = [each_item[2], each_item[3], each_item[5]]
 
-        red_msg = Float64MultiArray(data=red_msg)
+        red_msg1 = Float64MultiArray(data=red_msg1)
+        red_msg2 = Float64MultiArray(data=red_msg2)
         blue_msg = Float64MultiArray(data=blue_msg)
         nurse_msg = Float64MultiArray(data=nurse_msg)
 
-        global pub_red
+        global pub_red1
+        global pub_red2
         global pub_blue
         global pub_nurse
-        pub_red.publish(red_msg)
+        pub_red1.publish(red_msg1)
+        pub_red2.publish(red_msg2)
         pub_blue.publish(blue_msg)
         pub_nurse.publish(nurse_msg)
         # print(red_msg,blue_msg,nurse_msg)
@@ -259,13 +285,15 @@ if __name__ == '__main__':
 
     rospy.init_node('topic_publisher')
     # BEGIN PUB
-    global pub_red
+    global pub_red1
+    global pub_red2
     global pub_blue
     global pub_nurse
     # pub_area = rospy.Publisher('robodetect_area', Int32)
     # pub_nurse_x = rospy.Publisher('robodetect_nurse_x', Int32)
     # pub_nurse_y = rospy.Publisher('robodetect_nurse_y', Int32)
-    pub_red = rospy.Publisher('robodetect_pub_red', Float64MultiArray)
+    pub_red1 = rospy.Publisher('robodetect_pub_red1', Float64MultiArray)
+    pub_red2 = rospy.Publisher('robodetect_pub_red2', Float64MultiArray)
     pub_blue = rospy.Publisher('robodetect_pub_blue', Float64MultiArray)
     pub_nurse = rospy.Publisher('robodetect_pub_nurse', Float64MultiArray)
 
