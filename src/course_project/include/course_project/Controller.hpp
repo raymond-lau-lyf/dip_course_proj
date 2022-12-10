@@ -18,7 +18,9 @@
 #include "std_msgs/Float64MultiArray.h"
 
 #define DELTA_T 25
-#define MI 4
+#define MI 3//big
+// #define MI 4//big
+
 
 enum Robot_Mode
 {
@@ -346,7 +348,7 @@ void Robot_Mode_Switch(enum Robot_Mode *robot_mode)
     case CIRCLE_MODE:
         ROS_INFO("mode = CIRCLE_MODE");
         circle_timer++;
-        if (circle_timer > 450)
+        if (circle_timer > 426)
         {
             ROS_INFO("mode = FOLLOW_MODE");
             if (nurse_target.area == -1)
