@@ -13,6 +13,6 @@ int main(int argc, char** argv) {
     Controller ic(nco);
 
     
-    // ros::spin();
+    ros::spin();
     return 0;
 }

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import rospy
 from std_msgs.msg import Int32
 from std_msgs.msg import Float64
@@ -24,8 +23,6 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
-
-
 
 
 def detect(save_img=False):
@@ -96,9 +93,9 @@ def detect(save_img=False):
             pred = apply_classifier(pred, modelc, img, im0s)
 
         # Process detections
-        
+
         one_frame_result = []
-        
+
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
                 p, s, im0, frame = path[i], '%g: ' % i, im0s[i].copy(), dataset.count
@@ -118,7 +115,7 @@ def detect(save_img=False):
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-                        
+
                 # Write results
                 # one_frame_result = []
                 for *xyxy, conf, cls in reversed(det):
@@ -135,70 +132,20 @@ def detect(save_img=False):
                         y1 = int(xyxy[1].item())
                         x2 = int(xyxy[2].item())
                         y2 = int(xyxy[3].item())
-                        sxy = abs((x1-x2)*(y1-y2))
-                        #TODO
+                        sxy = abs((x1 - x2) * (y1 - y2))
+                        # TODO
                         x_bar = (x1 + x2) / 2
                         y_bar = (y1 + y2) / 2
                         print(label + "\t x: {},\t y: {}".format(x_bar, y_bar))
-                        one_frame_result.append([names[int(cls)], int(cls), x_bar, y_bar, float(conf),sxy])
-                        
+                        if x_bar <= 640:
+                            one_frame_result.append([names[int(cls)], int(cls), x_bar, y_bar, float(conf), sxy])
 
-
-                        
-                        # global pub_area
-                        # global pub_nurse_x
-                        # global pub_apub_nurse_yrea
-                        # pub_nurse_x.publish(x_bar)
-                        # pub_nurse_y.publish(y_bar)
-                        # pub_area.publish(sxy)
-
-
-
-                # num_red = 0
-                # sumx = 0
-                # sumy = 0
-                # sums = 0
-                # for each_item in one_frame_result:
-                #     cv2.circle(im0, (int(each_item[2]), int(each_item[3])), 5, (0, 0, 0), -1)
-                #     cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3]),
-                #                 (int(each_item[2]), int(each_item[3])),
-                #                 fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.7, color=(0, 255, 0),
-                #                 thickness=2)
-                #     if each_item[0] == 'red':
-                #         num_red = num_red + 1
-                #         sumx = each_item[2] + sumx
-                #         sumy = each_item[3] + sumy
-                #         sums = each_item[5] + sums
-                
-                # red_msg = [-1,-1,-1]
-                # if num_red == 1:
-                #     red_msg[0] = sumx/num_red 
-                #     red_msg[1] = sumy/num_red 
-                #     red_msg[2] = sums/num_red 
-                # if num_red == 2:
-                #     red_msg[0] = sumx/num_red 
-                #     red_msg[1] = sumy/num_red 
-                #     red_msg[2] = sums/num_red 
-                    
-                # blue_msg = [-1,-1,-1]
-                # nurse_msg = [-1,-1,-1]
-                # for each_item in one_frame_result:
-                #     if each_item[0] == 'blue':
-                #         blue_msg = [each_item[2], each_item[3], each_item[5]]
-                #     if each_item[0] == 'nurse':
-                #         nurse_msg = [each_item[2], each_item[3], each_item[5]]
-
-                # red_msg = Float64MultiArray(data = red_msg)
-                # blue_msg = Float64MultiArray(data = blue_msg)
-                # nurse_msg = Float64MultiArray(data = nurse_msg)
-
-
-                # global pub_red
-                # global pub_blue
-                # global pub_nurse
-                # pub_red.publish(red_msg)
-                # pub_blue.publish(blue_msg)
-                # pub_nurse.publish(nurse_msg)
+                for each_item in one_frame_result:
+                    cv2.circle(im0, (int(each_item[2]), int(each_item[3])), 5, (0, 0, 0), -1)
+                    cv2.putText(im0, str(each_item[0]) + " x:" + str(each_item[2]) + " y:" + str(each_item[3]),
+                                (int(each_item[2]), int(each_item[3])),
+                                fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.7, color=(0, 255, 0),
+                                thickness=2)
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
@@ -226,7 +173,7 @@ def detect(save_img=False):
                             save_path += '.mp4'
                         vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
                     vid_writer.write(im0)
-        
+
         num_red = 0
         sumx = 0
         sumy = 0
@@ -242,29 +189,24 @@ def detect(save_img=False):
                 sumx = each_item[2] + sumx
                 sumy = each_item[3] + sumy
                 sums = each_item[5] + sums
-        
-        red_msg = [-1,-1,-1]
-        if num_red == 1:
-            red_msg[0] = sumx/num_red 
-            red_msg[1] = sumy/num_red 
-            red_msg[2] = sums/num_red 
+
+        red_msg = [-1, -1, -1]
         if num_red == 2:
-            red_msg[0] = sumx/num_red 
-            red_msg[1] = sumy/num_red 
-            red_msg[2] = sums/num_red 
-            
-        blue_msg = [-1,-1,-1]
-        nurse_msg = [-1,-1,-1]
+            red_msg[0] = sumx / num_red
+            red_msg[1] = sumy / num_red
+            red_msg[2] = sums / num_red
+
+        blue_msg = [-1, -1, -1]
+        nurse_msg = [-1, -1, -1]
         for each_item in one_frame_result:
             if each_item[0] == 'blue':
                 blue_msg = [each_item[2], each_item[3], each_item[5]]
             if each_item[0] == 'nurse':
                 nurse_msg = [each_item[2], each_item[3], each_item[5]]
 
-        red_msg = Float64MultiArray(data = red_msg)
-        blue_msg = Float64MultiArray(data = blue_msg)
-        nurse_msg = Float64MultiArray(data = nurse_msg)
-
+        red_msg = Float64MultiArray(data=red_msg)
+        blue_msg = Float64MultiArray(data=blue_msg)
+        nurse_msg = Float64MultiArray(data=nurse_msg)
 
         global pub_red
         global pub_blue
@@ -274,7 +216,6 @@ def detect(save_img=False):
         pub_nurse.publish(nurse_msg)
         # print(red_msg,blue_msg,nurse_msg)
 
-
     # if save_txt or save_img:
     #     s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
     #     print(f"Results saved to {save_dir}{s}")
@@ -283,13 +224,17 @@ def detect(save_img=False):
 
 
 if __name__ == '__main__':
+
+    # print(sys.path)
+    # sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
+
     parser = argparse.ArgumentParser()
     # parser.add_argument('--weights', nargs='+', type=str, default='yolov5l.pt', help='model.pt path(s)')
-    parser.add_argument('--weights', nargs='+', type=str, default='/home/zdh/Lth/dip_course_ws/src/YOLOV5_DIP_detect/src/test_msgs/scripts/trained_model/small/第一个/best.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='./trained_model/small/第一个/best.pt', help='model.pt path(s)')
     # parser.add_argument('--source', type=str, default='../my_dataset/images/train/', help='source')  # file/folder, 0 for webcam
 
-    parser.add_argument('--source', type=str, default='0', help='source')  # file/folder, 0 for webcam
-    # parser.add_argument('--source', type=str, default='src/test_msgs/scripts/data/video/1.mp4', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--source', type=str, default='1', help='source')  # file/folder, 0 for webcam
+    # parser.add_argument('--source', type=str, default='data/video/1.mp4', help='source')  # file/folder, 0 for webcam
 
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
@@ -311,8 +256,7 @@ if __name__ == '__main__':
     print(opt)
     check_requirements(exclude=('pycocotools', 'thop'))
 
-    
-    
+
     rospy.init_node('topic_publisher')
     # BEGIN PUB
     global pub_red
@@ -324,7 +268,7 @@ if __name__ == '__main__':
     pub_red = rospy.Publisher('robodetect_pub_red', Float64MultiArray)
     pub_blue = rospy.Publisher('robodetect_pub_blue', Float64MultiArray)
     pub_nurse = rospy.Publisher('robodetect_pub_nurse', Float64MultiArray)
-    
+
     with torch.no_grad():
         if opt.update:  # update all models (to fix SourceChangeWarning)
             for opt.weights in ['yolov5s.pt', 'yolov5m.pt', 'yolov5l.pt', 'yolov5x.pt']:
