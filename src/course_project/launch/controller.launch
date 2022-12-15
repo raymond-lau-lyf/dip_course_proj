@@ -1,5 +1,0 @@
-<launch>
-  <node name="controller" pkg="course_project" type="controller" output="screen" />
-
-  <!-- <node name="course_project_node" pkg="course_project" type="course_project_node" output="screen" /> -->
-</launch>

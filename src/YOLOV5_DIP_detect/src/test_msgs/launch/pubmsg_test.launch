@@ -1,5 +1,0 @@
-<launch>
-  <!-- <node pkg="test_msgs" type="test_msgs" name="test_msgs" /> -->
-  <node pkg="test_msgs" name="test_msgs" type="detect.py" output="screen"/>
-  <!-- <node pkg="topic_publisher" name="topic_publisher" type="detect.py" output="screen"/> -->
-</launch>

@@ -1,3 +1,0 @@
-int32 area
-int32 detected_nurse_x
-int32 detected_nurse_y
