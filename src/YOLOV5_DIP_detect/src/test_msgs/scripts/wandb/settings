@@ -1,5 +1,0 @@
-[default]
-entity = skeay
-project = try
-base_url = https://api.wandb.ai
-

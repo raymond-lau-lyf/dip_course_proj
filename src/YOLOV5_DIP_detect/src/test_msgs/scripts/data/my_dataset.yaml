@@ -1,5 +1,0 @@
-train: ../my_dataset/images/train/  # 128 images
-val: ../my_dataset/images/test/  # 128 images
-
-nc: 3
-names: ['blue', 'nurse', 'red']
