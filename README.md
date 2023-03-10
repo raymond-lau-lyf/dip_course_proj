@@ -1,1 +1,1 @@
-# dip_course_ws
+# dip_course_proj
